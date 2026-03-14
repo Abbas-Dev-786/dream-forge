@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from dreamforge_api.config import get_settings
@@ -32,4 +32,15 @@ def init_db() -> None:
     import dreamforge_api.models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _ensure_runtime_columns()
 
+
+def _ensure_runtime_columns() -> None:
+    inspector = inspect(engine)
+    table_names = set(inspector.get_table_names())
+    if "story_nodes" not in table_names:
+        return
+    column_names = {column["name"] for column in inspector.get_columns("story_nodes")}
+    if "story_memory_json" not in column_names:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE story_nodes ADD COLUMN story_memory_json TEXT"))

@@ -36,6 +36,10 @@ class StoryBible(BaseModel):
     continuity_facts: list[str]
 
 
+class StoryMemory(BaseModel):
+    branch_summaries: list[str] = Field(default_factory=list)
+
+
 class SceneBrief(BaseModel):
     title: str
     scene_summary: str
@@ -44,6 +48,7 @@ class SceneBrief(BaseModel):
 
 class OpeningOutput(BaseModel):
     story_bible: StoryBible
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     scene_brief: SceneBrief
     story_text: str
     narration_text: str
@@ -59,6 +64,7 @@ class OpeningOutput(BaseModel):
 
 
 class ContinuationOutput(BaseModel):
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     scene_brief: SceneBrief
     story_text: str
     narration_text: str
@@ -83,6 +89,18 @@ class OpeningInput(BaseModel):
 class ContinuationInput(BaseModel):
     mode: Literal["continue_story_from_choice"]
     story_bible: StoryBible
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     current_node: dict[str, object]
     selected_choice: StoryChoicePayload
+    tone: str = "gentle"
     constraints: dict[str, object]
+
+
+class ReviewDecision(BaseModel):
+    approved: bool
+    critique: str = ""
+    severity: Literal["low", "medium", "high"] = "low"
+
+
+class MemoryUpdate(BaseModel):
+    memory_entry: str

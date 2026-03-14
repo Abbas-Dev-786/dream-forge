@@ -57,6 +57,10 @@ class StoryBible(BaseModel):
     continuity_facts: list[str]
 
 
+class StoryMemory(BaseModel):
+    branch_summaries: list[str] = Field(default_factory=list)
+
+
 class SceneBrief(BaseModel):
     title: str
     scene_summary: str
@@ -122,13 +126,16 @@ class OpeningCrewInput(BaseModel):
 class ContinuationCrewInput(BaseModel):
     mode: Literal["continue_story_from_choice"]
     story_bible: StoryBible
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     current_node: dict[str, object]
     selected_choice: StoryChoicePayload
+    tone: Tone
     constraints: dict[str, object]
 
 
 class OpeningCrewOutput(BaseModel):
     story_bible: StoryBible
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     scene_brief: SceneBrief
     story_text: str
     narration_text: str
@@ -144,6 +151,7 @@ class OpeningCrewOutput(BaseModel):
 
 
 class ContinuationCrewOutput(BaseModel):
+    story_memory: StoryMemory = Field(default_factory=StoryMemory)
     scene_brief: SceneBrief
     story_text: str
     narration_text: str
@@ -156,4 +164,3 @@ class ContinuationCrewOutput(BaseModel):
         if not self.is_terminal and len(self.choices) != 2:
             raise ValueError("Continuation scene must return exactly 2 choices unless terminal.")
         return self
-

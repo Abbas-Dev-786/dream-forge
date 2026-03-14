@@ -18,6 +18,7 @@ from dreamforge_api.schemas import (
     OpeningCrewInput,
     PromptConstraints,
     StoryBible,
+    StoryMemory,
     StoryChoicePayload,
     StoryChoiceRequest,
     StoryNodeResponse,
@@ -76,6 +77,7 @@ class StorySessionService:
             story_text=opening.story_text,
             narration_text=opening.narration_text,
             illustration_prompt=opening.illustration_prompt,
+            story_memory_json=opening.story_memory.model_dump_json(),
             is_terminal=opening.is_terminal,
             image_status=AssetStatus.PENDING.value,
             audio_status=AssetStatus.PENDING.value,
@@ -112,12 +114,14 @@ class StorySessionService:
             ContinuationCrewInput(
                 mode="continue_story_from_choice",
                 story_bible=self._story_bible(session),
+                story_memory=self._story_memory(node),
                 current_node={
                     "node_id": node.id,
                     "title": node.title,
                     "scene_summary": node.scene_summary,
                 },
                 selected_choice=StoryChoicePayload(choice_id=choice.choice_key, label=choice.label),
+                tone=session.tone,
                 constraints={
                     "current_depth": current_depth,
                     "max_branch_depth": 2,
@@ -137,6 +141,7 @@ class StorySessionService:
             story_text=crew_output.story_text,
             narration_text=crew_output.narration_text,
             illustration_prompt=crew_output.illustration_prompt,
+            story_memory_json=crew_output.story_memory.model_dump_json(),
             is_terminal=crew_output.is_terminal,
             image_status=AssetStatus.PENDING.value,
             audio_status=AssetStatus.PENDING.value,
@@ -234,6 +239,11 @@ class StorySessionService:
 
     def _story_bible(self, session: StorySessionRecord) -> StoryBible:
         return StoryBible.model_validate_json(session.story_bible_json)
+
+    def _story_memory(self, node: StoryNodeRecord) -> StoryMemory:
+        if not node.story_memory_json:
+            return StoryMemory()
+        return StoryMemory.model_validate_json(node.story_memory_json)
 
     def _generated_count(self, session_id: str) -> int:
         return len(

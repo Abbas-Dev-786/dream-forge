@@ -41,6 +41,13 @@ gradient agent configure --no-interactive --agent-workspace-name dreamforge-stor
 gradient agent run
 ```
 
+ADK crew env vars:
+
+- `GRADIENT_MODEL_ACCESS_KEY`
+- `STORY_CREW_MODEL_ID`
+- `REVIEWER_MODEL_ID`
+- `MEMORY_MODEL_ID`
+
 ## Runtime Notes
 
 - `DREAMFORGE_USE_MOCK_AI=true` keeps the full stack runnable without deployed ADK or inference services.

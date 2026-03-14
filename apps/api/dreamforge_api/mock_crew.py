@@ -8,6 +8,7 @@ from dreamforge_api.schemas import (
     SceneBrief,
     StoryBible,
     StoryChoicePayload,
+    StoryMemory,
 )
 
 
@@ -57,6 +58,11 @@ class MockStoryCrew:
         prompt = self._illustration_prompt(story_bible, brief)
         return OpeningCrewOutput(
             story_bible=story_bible,
+            story_memory=StoryMemory(
+                branch_summaries=[
+                    f"The story opened at '{brief.title}' where {brief.scene_summary}"
+                ]
+            ),
             scene_brief=brief,
             story_text=self._story_text(name, brief.scene_summary),
             narration_text=self._story_text(name, brief.scene_summary),
@@ -77,6 +83,12 @@ class MockStoryCrew:
         )
         is_terminal = current_depth >= int(payload.constraints.get("max_branch_depth", 2))
         return ContinuationCrewOutput(
+            story_memory=StoryMemory(
+                branch_summaries=[
+                    *payload.story_memory.branch_summaries,
+                    f"After choosing '{payload.selected_choice.label}', the hero reached '{brief.title}' where {brief.scene_summary}",
+                ]
+            ),
             scene_brief=brief,
             story_text=self._story_text(name, summary),
             narration_text=self._story_text(name, summary),
@@ -113,4 +125,3 @@ class MockStoryCrew:
         if "gate" in choice_label:
             return f"The Moonlit Gate {depth}"
         return f"The Next Wonder {depth}"
-

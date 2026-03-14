@@ -42,6 +42,7 @@ class StoryNodeRecord(Base):
     story_text: Mapped[str] = mapped_column(Text)
     narration_text: Mapped[str] = mapped_column(Text)
     illustration_prompt: Mapped[str] = mapped_column(Text)
+    story_memory_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_terminal: Mapped[bool] = mapped_column(Boolean, default=False)
     image_status: Mapped[str] = mapped_column(Text, default="pending")
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -87,4 +88,3 @@ class MediaAssetRecord(Base):
     url: Mapped[str] = mapped_column(Text)
     provider_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-
